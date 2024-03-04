@@ -1168,22 +1168,11 @@ class VariantSelects extends HTMLElement {
         if (price) price.classList.remove('hidden');
 
         if (inventoryDestination) inventoryDestination.classList.toggle('hidden', inventorySource.innerText === '');
-        
-        const variantPreorder = html.getElementById(`PreorderInfo-${sectionId}`);
-        const currentPreorder = document.getElementById(`PreorderInfo-${sectionId}`);
-        
-        if (variantPreorder.querySelector('input') && !currentPreorder.querySelector('input')) {
-          currentPreorder.innerHTML = variantPreorder.innerHTML
-        } else if (!variantPreorder.querySelector('input') && currentPreorder.querySelector('input')) {
-          currentPreorder.innerHTML = ''
-        }
 
         const addButtonUpdated = html.getElementById(`ProductSubmitButton-${sectionId}`);
         this.toggleAddButton(
           addButtonUpdated ? addButtonUpdated.hasAttribute('disabled') : true,
-          window.variantStrings.soldOut,
-          true,
-          variantPreorder.querySelector('input') ? true : false
+          window.variantStrings.soldOut
         );
 
         publish(PUB_SUB_EVENTS.variantChange, {
@@ -1196,7 +1185,7 @@ class VariantSelects extends HTMLElement {
       });
   }
 
-  toggleAddButton(disable = true, text, modifyClass = true, isPreorder = false) {
+  toggleAddButton(disable = true, text, modifyClass = true) {
     const productForm = document.getElementById(`product-form-${this.dataset.section}`);
     if (!productForm) return;
     const addButton = productForm.querySelector('[name="add"]');
@@ -1208,7 +1197,7 @@ class VariantSelects extends HTMLElement {
       if (text) addButtonText.textContent = text;
     } else {
       addButton.removeAttribute('disabled');
-      addButtonText.textContent = !isPreorder ? window.variantStrings.addToCart : window.variantStrings.preorder ;
+      addButtonText.textContent = window.variantStrings.addToCart;
     }
 
     if (!modifyClass) return;
