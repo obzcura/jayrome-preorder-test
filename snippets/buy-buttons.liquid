@@ -55,7 +55,7 @@
           assign preorder = false
           for tag in product.tags
             assign tag_downcase = tag | downcase
-            if tag_downcase contains 'preorder'
+            if tag_downcase == 'preorder'
               assign preorder = true
               break
             endif
