@@ -51,6 +51,26 @@
         novalidate: 'novalidate',
         data-type: 'add-to-cart-form'
       -%}
+        {% liquid
+          assign preorder = false
+          for tag in product.tags
+            assign tag_downcase = tag | downcase
+            if tag_downcase contains 'preorder'
+              assign preorder = true
+              break
+            endif
+          endfor
+
+          assign preorder_shipping_days = settings.default_preorder_days
+          for tag in product.tags
+            assign tag_downcase = tag | downcase
+            if tag_downcase contains 'preorder_shipping|'
+              assign preorder_shipping_days = tag_downcase | split: '|' | last
+              break
+            endif
+          endfor
+        %}
+
         <input
           type="hidden"
           name="id"
@@ -60,6 +80,23 @@
           {% endif %}
           class="product-variant-id"
         >
+
+          <div id="PreorderInfo-{{ section_id }}">
+            {% if preorder and product.selected_or_first_available_variant.available and product.selected_or_first_available_variant.inventory_quantity < 1 %}
+              <input
+                type="hidden"
+                name="properties[type]"
+                value="{{ 'products.product.preorder' | t }}"
+              >
+
+              <input
+                type="hidden"
+                name="properties[Time to ship]"
+                value="{{ preorder_shipping_days }} Days"
+              >
+              <small>{{ 'products.product.preorder_shipping_info' | t: days: preorder_shipping_days }}</small>
+            {% endif %}
+          </div>          
 
         {%- if gift_card_recipient_feature_active -%}
           {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
@@ -80,15 +117,20 @@
             type="submit"
             name="add"
             class="product-form__submit button button--full-width {% if show_dynamic_checkout %}button--secondary{% else %}button--primary{% endif %}"
-            {% if product.selected_or_first_available_variant.available == false or quantity_rule_soldout %}
+            {% if preorder == false and product.selected_or_first_available_variant.available == false or quantity_rule_soldout %}
               disabled
             {% endif %}
           >
+
             <span>
               {%- if product.selected_or_first_available_variant.available == false or quantity_rule_soldout -%}
-                {{ 'products.product.sold_out' | t }}
+                  {{ 'products.product.sold_out' | t }}
               {%- else -%}
-                {{ 'products.product.add_to_cart' | t }}
+                {% if preorder and product.selected_or_first_available_variant.inventory_quantity < 1  %}
+                  {{ 'products.product.preorder' | t }}
+                {% else %}
+                  {{ 'products.product.add_to_cart' | t }}
+                {%- endif -%}
               {%- endif -%}
             </span>
             {%- render 'loading-spinner' -%}

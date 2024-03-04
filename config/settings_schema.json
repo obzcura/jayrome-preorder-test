@@ -1414,6 +1414,17 @@
     ]
   },
   {
+    "name": "Preorder",
+    "settings": [
+      {
+        "type": "number",
+        "id": "default_preorder_days",
+        "label": "Default Preorder Shipping Days",
+        "default": 30
+      }
+    ]
+  },
+  {
     "name": "t:settings_schema.cart.name",
     "settings": [
       {
